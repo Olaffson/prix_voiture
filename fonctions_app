@@ -1,0 +1,34 @@
+import pandas as pd
+
+def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicule, roues_motrices, emplacement_moteur, empattement, longueur_voiture, largeur_voiture, hauteur_voiture, poids_voiture, type_moteur, nombre_cylindres, taille_moteur, systeme_carburant, taux_alesage, course, taux_compression, puissance, tour_moteur, consommation_ville, consommation_autoroute, marque, modele):
+    # Créer un DataFrame avec les valeurs sélectionnées
+    data = pd.DataFrame({
+        'risque_assurance' : [risque_assurance],
+        'carburant' : [carburant],
+        'turbo' : [turbo],
+        'nombre_portes' : [nombre_portes],
+        'type_vehicule' : [type_vehicule],
+        'roues_motrices' : [roues_motrices],
+        'emplacement_moteur' : [emplacement_moteur],
+        'empattement' : [empattement],
+        'longueur_voiture' : [longueur_voiture],
+        'largeur_voiture' : [largeur_voiture],
+        'hauteur_voiture' : [hauteur_voiture],
+        'poids_voiture' : [poids_voiture],
+        'type_moteur' : [type_moteur],
+        'nombre_cylindres' : [nombre_cylindres],
+        'taille_moteur' : [taille_moteur],
+        'systeme_carburant' : [systeme_carburant],
+        'taux_alesage' : [taux_alesage],
+        'course' : [course],
+        'taux_compression' : [taux_compression],
+        'puissance' : [puissance],
+        'tour_moteur' : [tour_moteur],
+        'consommation_ville' : [consommation_ville],
+        'consommation_autoroute' : [consommation_autoroute],
+        'marque' : [marque],
+        'modele' : [modele]
+    })
+
+    prix = model.predict()
+    return prix
