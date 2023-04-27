@@ -1,0 +1,10 @@
+python
+ipykernel
+streamlit
+pandas
+scikit-learn
+seaborn
+plotly
+matplotlib
+ydata_profiling
+pickle
