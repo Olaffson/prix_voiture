@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 
+############################################################################################################################
 
 #fonction de prediction du prix du véhicule
 def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicule, roues_motrices, emplacement_moteur, empattement, longueur_voiture, largeur_voiture, hauteur_voiture, poids_voiture, type_moteur, nombre_cylindres, taille_moteur, systeme_carburant, taux_alesage, course, taux_compression, puissance, tour_moteur, consommation_ville, consommation_autoroute, marque, modele):
