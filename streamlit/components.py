@@ -69,7 +69,7 @@ def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicu
     })
     
     # récupération de 'model' avec pikle
-    with open('model.pkl', 'rb') as file:
+    with open('../pickle/model.pkl', 'rb') as file:
         model = pickle.load(file)
 
     # prédiction

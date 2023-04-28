@@ -11,7 +11,7 @@ def main():
     Application Streamlit pour donner une estimation de prix à un véhicule.
     """
     st.set_page_config(page_title="Estimator", page_icon="chart_with_upwards_trend", layout="wide")
-    # page_icon=":movie_camera:",
+    # st.set_page_config(page_title="Estimator", page_icon=":car:", layout="wide")
 
     st.title("Estimation du prix du véhicule")
     
