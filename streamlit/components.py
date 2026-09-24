@@ -37,7 +37,7 @@ def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicu
         modele (str): le modèle du véhicule.
 
     Returns:
-        float: la valeur estimée du véhicule en euros.
+        float: la valeur estimée du véhicule en dollars (devise des données d'entraînement).
     """
     
     # Créer un DataFrame avec les valeurs sélectionnées
