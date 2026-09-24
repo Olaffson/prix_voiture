@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environnements virtuels
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Modèle exporté par notebook/nettoyage.ipynb (le modèle utilisé par l'application est streamlit/model.pkl)
+notebook/model.pkl
+
+# Variables d'environnement
+.env
