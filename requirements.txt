@@ -1,4 +1,3 @@
-python
 ipykernel
 streamlit
 pandas
@@ -7,4 +6,3 @@ seaborn
 plotly
 matplotlib
 ydata_profiling
-pickle
