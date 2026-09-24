@@ -76,4 +76,5 @@ def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicu
     # prédiction
     y_pred = model.predict(X)
 
-    return y_pred
+    # predict renvoie un tableau d'une valeur : on renvoie le prix seul, arrondi
+    return round(float(y_pred[0]), 2)

@@ -110,7 +110,7 @@ def main():
                                 selected_marque, 
                                 selected_modele
                                 )
-        st.write(f"Le prix estimé pour ce véhicule est de : {estimation} €")
+        st.write(f"Le prix estimé pour ce véhicule est de : {estimation:,.0f} €".replace(",", " "))
 
 ############################################################################################################################
 
