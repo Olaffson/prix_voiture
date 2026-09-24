@@ -1,5 +1,6 @@
 import pandas as pd
 import pickle
+from pathlib import Path
 
 ############################################################################################################################
 
@@ -68,8 +69,8 @@ def predict_price(risque_assurance, carburant, turbo, nombre_portes, type_vehicu
         'modele' : [modele]
     })
     
-    # récupération de 'model' avec pikle
-    with open('../pickle/model.pkl', 'rb') as file:
+    # récupération de 'model' avec pickle (model.pkl est dans le même dossier que ce fichier)
+    with open(Path(__file__).parent / 'model.pkl', 'rb') as file:
         model = pickle.load(file)
 
     # prédiction

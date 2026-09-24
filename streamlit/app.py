@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pickle
+from pathlib import Path
 from sklearn.compose import make_column_selector
 from components import predict_price
 
@@ -15,7 +16,8 @@ def main():
 
     st.title("Estimation du prix du véhicule")
     
-    df = pd.read_csv('../data/data_utilisable.csv')
+    # chemin relatif au fichier pour pouvoir lancer l'application depuis n'importe quel dossier
+    df = pd.read_csv(Path(__file__).parent.parent / 'data' / 'data_utilisable.csv')
 
     # Organiser les box de selections dans des colonnes
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
