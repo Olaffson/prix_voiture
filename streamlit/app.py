@@ -25,7 +25,8 @@ def main():
     # colonne 1
     marques = list(df['marque'].unique())
     selected_marque = col1.selectbox("Sélectionnez la marque :", options=marques)
-    modeles = list(df['modele'].unique())
+    # seuls les modèles de la marque choisie sont proposés (sans les valeurs manquantes)
+    modeles = list(df.loc[df['marque'] == selected_marque, 'modele'].dropna().unique())
     selected_modele = col1.selectbox("Sélectionnez le modele :", options=modeles)
     type_vehiculess = list(df['type_vehicule'].unique())
     selected_type_vehicule = col1.selectbox("Sélectionnez le type de véhicule :", options=type_vehiculess)
