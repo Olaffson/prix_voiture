@@ -1,34 +1,55 @@
 # prix_voiture
-Ce projet est une application d'estimation de prix d'un véhicule construite avec Streamlit et Python. Après nettoyage des données fournies `data/carprice.csv`, les données nettoyées sont traitées avec scikit-learn afin de créer un modèle de prédiction de prix.
-Ce modèle est importé à l'aide de pickle `pickle/model.pkl` dans une application streamlit `streamlit/app.py`.
 
-### Remarque :
-- **Après nettoyage les données sont stockées dans `data/data_utilisable.csv`.**
+Application d'estimation du prix d'un véhicule, construite avec Python, scikit-learn et Streamlit.
 
+Les données fournies (`data/carprice.csv`) sont nettoyées, puis utilisées pour entraîner un modèle de régression (forêt aléatoire) avec scikit-learn. Le modèle est enregistré avec pickle dans `streamlit/model.pkl` et chargé par l'application Streamlit `streamlit/app.py`.
+
+Les prix sont exprimés en **dollars américains**, la devise des données d'origine.
 
 ## Structure du projet
 
-Le projet est organisé en plusieurs dossiers :
-
-- `data` : contient les fichiers csv.
-- `notebook` : contient les notebooks Jupyter.
-- `pickle` : contient le fichier pkl.
-- `streamlit` : contient les fichiers Python et les composants Streamlit pour l'interface utilisateur de l'application.
+| Dossier / fichier | Contenu |
+|---|---|
+| `data/carprice.csv` | Données brutes (noms de colonnes en anglais, unités américaines) |
+| `data/data_utilisable.csv` | Données nettoyées : colonnes en français, unités métriques, marque et modèle séparés |
+| `notebook/nettoyage.ipynb` | Exploration et nettoyage des données |
+| `notebook/model.ipynb` | Entraînement, évaluation et export du modèle |
+| `streamlit/app.py` | Interface de l'application |
+| `streamlit/components.py` | Fonction de prédiction du prix |
+| `streamlit/model.pkl` | Modèle entraîné utilisé par l'application |
 
 ## Installation
 
+Le modèle a été entraîné avec scikit-learn 1.2.2, qui ne fonctionne qu'avec **Python 3.12 au maximum**.
+
 1. Clonez ce dépôt : `git clone git@github.com:Olaffson/prix_voiture.git`
-2. Créez un environnement virtuel pour ce projet pour installer les dépendances .
+2. Créez un environnement virtuel avec Python 3.12 ou une version antérieure, puis activez-le :
+   ```bash
+   python3.12 -m venv venv
+   source venv/bin/activate
+   ```
 3. Installez les dépendances : `pip install -r requirements.txt`
 
-## Application 
+## Application
 
-Pour lancer l'application, il faut se placer dans le dossier `streamlit/app.py` et lancer la commande suivante :
- - `streamlit run app.py` pour extraire les données des films
- 
-## License
-Ce projet est sous licence MIT - voir [LICENSE](LICENSE) pour plus de détails.
+Depuis la racine du dépôt, lancez :
 
-## Auteurs
-* **Olivier Kotwica**[@Olaffson](https://github.com/Olaffson)
+```bash
+streamlit run streamlit/app.py
+```
 
+Sélectionnez les caractéristiques du véhicule, puis cliquez sur **Estimation** pour afficher le prix estimé.
+
+## Réentraîner le modèle
+
+Exécutez `notebook/model.ipynb` : il lit `data/data_utilisable.csv`, entraîne le modèle et l'enregistre dans `streamlit/model.pkl`, qui est aussitôt utilisé par l'application.
+
+Si vous réentraînez le modèle avec une autre version de scikit-learn, mettez à jour la version indiquée dans `requirements.txt`.
+
+## Licence
+
+Ce projet est sous licence MIT, voir [LICENSE](LICENSE) pour plus de détails.
+
+## Auteur
+
+* **Olivier Kotwica** [@Olaffson](https://github.com/Olaffson)
