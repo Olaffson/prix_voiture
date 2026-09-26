@@ -7,8 +7,8 @@ import pytest
 
 from monitoring.drift import charger_seuils
 from monitoring.reentrainement import construire_fenetre, reentrainer, rapport_markdown
-from monitoring.reference import charger_reference
-from pipeline.entrainement import CIBLE, creer_modele, sauvegarder
+from monitoring.reference import charger_reference, construire_reference, sauvegarder_reference
+from pipeline.entrainement import CIBLE, creer_modele, entrainer, sauvegarder
 from simulation.generer_lot import charger_scenario, generer_lot
 
 RACINE = Path(__file__).parent.parent
@@ -26,18 +26,30 @@ def creer_lots(dossier: Path, numeros) -> list[Path]:
     return lots
 
 
+@pytest.fixture(scope='module')
+def modele_origine():
+    donnees = pd.read_csv(RACINE / 'data' / 'data_utilisable.csv')
+    model, _ = entrainer(donnees)
+    return model, construire_reference(donnees, model)
+
+
 @pytest.fixture
-def modele_en_service(tmp_path):
-    """Copie du modèle en service, de sa référence et de ses données."""
+def modele_en_service(tmp_path, modele_origine):
+    """
+    Modèle d'origine, sa référence et ses données, dans un dossier temporaire.
+
+    Les tests ne dépendent pas du modèle réellement en service, qui change à chaque réentraînement.
+    """
     chemins = {
         'modele': tmp_path / 'model.pkl',
         'reference': tmp_path / 'reference.json',
         'donnees_modele': tmp_path / 'donnees_modele.csv',
         'archives': tmp_path / 'archives',
     }
-    shutil.copy(RACINE / 'streamlit' / 'model.pkl', chemins['modele'])
-    shutil.copy(RACINE / 'monitoring' / 'reference.json', chemins['reference'])
-    shutil.copy(RACINE / 'data' / 'donnees_modele.csv', chemins['donnees_modele'])
+    model, reference = modele_origine
+    sauvegarder(model, chemins['modele'])
+    sauvegarder_reference(reference, chemins['reference'])
+    shutil.copy(RACINE / 'data' / 'data_utilisable.csv', chemins['donnees_modele'])
     return chemins
 
 

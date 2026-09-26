@@ -1,8 +1,10 @@
 from pathlib import Path
 
+import pandas as pd
 from streamlit.testing.v1 import AppTest
 
-APP = Path(__file__).parent.parent / 'streamlit' / 'app.py'
+RACINE = Path(__file__).parent.parent
+APP = RACINE / 'streamlit' / 'app.py'
 
 
 def test_estimation():
@@ -15,8 +17,11 @@ def test_estimation():
 
 
 def test_modeles_de_la_marque_selectionnee():
+    donnees = pd.read_csv(RACINE / 'data' / 'donnees_modele.csv')
     app = AppTest.from_file(str(APP), default_timeout=60).run()
 
-    app.selectbox[0].set_value('bmw').run()
+    for marque in app.selectbox[0].options[:3]:
+        app.selectbox[0].set_value(marque).run()
 
-    assert set(app.selectbox[1].options) == {'320i', 'x1', 'x3', 'z4', 'x4', 'x5'}
+        attendus = set(donnees.loc[donnees['marque'] == marque, 'modele'].dropna())
+        assert set(app.selectbox[1].options) == attendus
