@@ -1,12 +1,13 @@
 ipykernel
 streamlit
 pandas
-# model.pkl a été entraîné avec scikit-learn 1.2.2, qui ne fonctionne pas avec numpy 2
-numpy<2
-scikit-learn==1.2.2
+# version utilisée pour entraîner streamlit/model.pkl : un modèle pickle ne se recharge
+# de façon fiable qu'avec la même version de scikit-learn
+scikit-learn==1.9.1
 seaborn
 plotly
 matplotlib
 ydata_profiling
 # ydata_profiling utilise pkg_resources, supprimé de setuptools à partir de la version 81
 setuptools<81
+pytest
