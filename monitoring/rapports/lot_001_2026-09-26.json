@@ -1,0 +1,157 @@
+{
+  "lot": "lot_001_2026-09-26.csv",
+  "nb_vehicules": 60,
+  "raisons": [],
+  "alertes": [
+    "valeurs inconnues du modèle sur 2% des véhicules"
+  ],
+  "performance": {
+    "r2": 0.932113038665925,
+    "rmse": 2594.3906804299286,
+    "mae": 1374.4241666666667
+  },
+  "mae_max": 1648.0231609756097,
+  "colonnes": {
+    "risque_assurance": {
+      "psi": 0.025762152248482714,
+      "p_valeur": 0.750876468310983,
+      "drift": null
+    },
+    "empattement": {
+      "psi": 0.03365743023108491,
+      "p_valeur": 0.8205753450897952,
+      "drift": null
+    },
+    "longueur_voiture": {
+      "psi": 0.05158751262921164,
+      "p_valeur": 0.6701340334215138,
+      "drift": null
+    },
+    "largeur_voiture": {
+      "psi": 0.033007141958991335,
+      "p_valeur": 0.8274519568086285,
+      "drift": null
+    },
+    "hauteur_voiture": {
+      "psi": 0.08583775699822424,
+      "p_valeur": 0.4332171729837814,
+      "drift": null
+    },
+    "poids_voiture": {
+      "psi": 0.036850431771065735,
+      "p_valeur": 0.7823750452730731,
+      "drift": null
+    },
+    "taille_moteur": {
+      "psi": 0.03281157350393682,
+      "p_valeur": 0.8321148769133775,
+      "drift": null
+    },
+    "taux_alesage": {
+      "psi": 0.08946694936823124,
+      "p_valeur": 0.4356118617651439,
+      "drift": null
+    },
+    "course": {
+      "psi": 0.12580740442955737,
+      "p_valeur": 0.20404489914432872,
+      "drift": null
+    },
+    "taux_compression": {
+      "psi": 0.11558721720136017,
+      "p_valeur": 0.2567920061664179,
+      "drift": null
+    },
+    "puissance": {
+      "psi": 0.18735834315688218,
+      "p_valeur": 0.08418781324783414,
+      "drift": null
+    },
+    "tour_moteur": {
+      "psi": 0.13475834872628611,
+      "p_valeur": 0.14482469081850938,
+      "drift": null
+    },
+    "consommation_ville": {
+      "psi": 0.05469544639211805,
+      "p_valeur": 0.6364264882387523,
+      "drift": null
+    },
+    "consommation_autoroute": {
+      "psi": 0.020266658415760128,
+      "p_valeur": 0.9167166140664132,
+      "drift": null
+    },
+    "prix": {
+      "psi": 0.04948704670473885,
+      "p_valeur": 0.6706518765510918,
+      "drift": null
+    },
+    "carburant": {
+      "psi": 6.682676631247403e-05,
+      "p_valeur": 1.0,
+      "drift": null
+    },
+    "turbo": {
+      "psi": 0.008243274879445376,
+      "p_valeur": 0.6581990033199314,
+      "drift": null
+    },
+    "nombre_portes": {
+      "psi": 0.0020423730985172886,
+      "p_valeur": 0.8734686607221203,
+      "drift": null
+    },
+    "type_vehicule": {
+      "psi": 0.09596159631336264,
+      "p_valeur": 0.2297098206315434,
+      "drift": null
+    },
+    "roues_motrices": {
+      "psi": 0.054708814437594296,
+      "p_valeur": 0.22772068709019885,
+      "drift": null
+    },
+    "emplacement_moteur": {
+      "psi": 0.01575143927737584,
+      "p_valeur": 0.6914262273704646,
+      "drift": null
+    },
+    "type_moteur": {
+      "psi": 0.24511102318921005,
+      "p_valeur": 0.17524686148548416,
+      "drift": null
+    },
+    "nombre_cylindres": {
+      "psi": 0.015307011134784443,
+      "p_valeur": 0.8805425122591192,
+      "drift": null
+    },
+    "systeme_carburant": {
+      "psi": 0.042678910565360606,
+      "p_valeur": 0.7755882905141624,
+      "drift": null
+    },
+    "marque": {
+      "psi": 0.25939342332041093,
+      "p_valeur": 0.22548016818420738,
+      "drift": null
+    }
+  },
+  "colonnes_en_drift": [],
+  "part_importance_en_drift": 0,
+  "valeurs_inconnues": {
+    "nombre_cylindres": [
+      "three"
+    ],
+    "modele": [
+      "D-Max V-Cross",
+      "century special",
+      "impala",
+      "trezia",
+      "x5"
+    ]
+  },
+  "part_vehicules_inconnus": 0.016666666666666666,
+  "decision": "surveiller"
+}
