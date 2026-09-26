@@ -1,0 +1,41 @@
+# Seuils de décision pour le suivi du drift.
+
+# En dessous de cette taille, un lot n'est pas analysé : les mesures seraient
+# trop instables et déclencheraient de fausses alertes
+taille_minimale_lot = 50
+
+[performance]
+# Réentraînement si l'erreur moyenne (MAE) du modèle sur le lot dépasse
+# facteur_mae_max × la MAE de référence...
+facteur_mae_max = 1.2
+# ... ou si son R² sur le lot passe sous r2_min. Le R² d'un petit lot varie
+# beaucoup (un seul véhicule très cher suffit à le faire baisser) : sur des
+# lots simulés sans drift, il passe sous 0.90 dans 13 % des cas, sous 0.85
+# dans 5 % des cas et sous 0.80 dans 1 % des cas. La MAE reste le critère
+# principal, le R² sert de garde-fou
+r2_min = 0.80
+
+[drift]
+# PSI (Population Stability Index) d'une colonne :
+#   < psi_modere             : pas de changement notable
+#   psi_modere à psi_important : changement modéré (alerte)
+#   > psi_important           : changement important
+psi_modere = 0.1
+psi_important = 0.25
+# Sur un petit lot, le PSI dépasse souvent ces seuils par simple hasard. Un
+# drift n'est donc retenu que si le test du khi-deux le confirme : la
+# probabilité d'un écart aussi grand par hasard (p-valeur) doit être
+# inférieure à ce seuil
+significativite = 0.01
+# Réentraînement si les colonnes en changement important représentent au
+# moins cette part de l'importance totale des colonnes pour le modèle
+part_importance_max = 0.30
+
+[valeurs_inconnues]
+# Réentraînement si plus de cette part des véhicules a une valeur texte que
+# le modèle n'a jamais vue (nouvelle marque, nouveau type de moteur...)
+part_max = 0.05
+# Colonnes non prises en compte : la plupart des modèles de véhicules
+# n'apparaissent qu'une ou deux fois dans les données, un modèle inconnu est
+# donc fréquent et ne signale pas à lui seul un drift
+colonnes_ignorees = ["modele"]
