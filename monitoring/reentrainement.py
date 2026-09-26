@@ -63,7 +63,7 @@ def construire_fenetre(lots: list[Path], origine: pd.DataFrame, nb_min: int) -> 
         nb += len(pd.read_csv(lot))
 
     morceaux = [pd.read_csv(lot) for lot in retenus]
-    sources = [str(lot.relative_to(RACINE)) if lot.is_relative_to(RACINE) else str(lot) for lot in retenus]
+    sources = [_chemin_lisible(lot) for lot in retenus]
     if nb < nb_min:
         complement = origine.sample(n=min(nb_min - nb, len(origine)), random_state=RANDOM_STATE)
         morceaux.insert(0, complement)
@@ -71,6 +71,13 @@ def construire_fenetre(lots: list[Path], origine: pd.DataFrame, nb_min: int) -> 
 
     fenetre = nettoyer(pd.concat(morceaux, ignore_index=True))
     return fenetre, sources
+
+
+def _chemin_lisible(chemin: Path) -> str:
+    """Chemin relatif à la racine du dépôt quand c'est possible, pour les rapports."""
+    chemin = chemin.resolve()
+    racine = RACINE.resolve()
+    return str(chemin.relative_to(racine)) if chemin.is_relative_to(racine) else str(chemin)
 
 
 def evaluer_challenger(fenetre: pd.DataFrame, nb_dernier_lot: int, nb_plis: int) -> tuple[dict, dict]:
@@ -133,10 +140,13 @@ def reentrainer(lots: list[Path], seuils: dict, modele: Path = MODELE_PAR_DEFAUT
         return resultat
 
     # archivage du modèle en service, puis remplacement par le nouveau modèle entraîné sur toute la fenêtre
-    resultat['archive'] = str(archiver(modele, reference, donnees_modele, archives / lots[-1].stem))
+    resultat['archive'] = _chemin_lisible(archiver(modele, reference, donnees_modele, archives / lots[-1].stem))
+    # les données sont relues depuis le fichier enregistré, pour que le modèle, sa référence et
+    # data/donnees_modele.csv correspondent exactement (l'écriture en CSV arrondit certaines valeurs)
+    fenetre.to_csv(donnees_modele, index=False)
+    fenetre = pd.read_csv(donnees_modele)
     nouveau = creer_modele().fit(fenetre.drop(CIBLE, axis=1), fenetre[CIBLE])
     sauvegarder(nouveau, modele)
-    fenetre.to_csv(donnees_modele, index=False)
     sauvegarder_reference(construire_reference(fenetre, nouveau, performance_fenetre, sources), reference)
     return resultat
 
