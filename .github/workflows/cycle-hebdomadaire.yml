@@ -6,15 +6,18 @@
 # Le lot et ses rapports sont enregistrés directement sur la branche principale.
 # Quand un nouveau modèle est meilleur que le modèle en service, il est proposé
 # dans une pull request (branche reentrainement-automatique), à valider avant
-# sa mise en service. Si cette pull request est encore ouverte la semaine
-# suivante, elle est mise à jour avec le modèle le plus récent.
+# sa mise en service. Si cette pull request est encore ouverte au cycle
+# suivant, elle est mise à jour avec le modèle le plus récent.
 
 name: Cycle hebdomadaire du modèle
 
 on:
-  schedule:
-    # chaque lundi à 6 h (UTC)
-    - cron: '0 6 * * 1'
+  # Lancement automatique désactivé : pour relancer le cycle chaque lundi à
+  # 6 h (UTC), retirer le premier « # » et l'espace qui le suit sur les 3 lignes
+  # du bloc schedule ci-dessous
+  # schedule:
+  #   # chaque lundi à 6 h (UTC)
+  #   - cron: '0 6 * * 1'
   # lancement manuel depuis l'onglet Actions de GitHub
   workflow_dispatch:
 

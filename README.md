@@ -149,7 +149,7 @@ Sur 16 semaines simulées, le cycle a mis en service 8 nouveaux modèles et en a
 
 ## Cycle hebdomadaire automatique
 
-Chaque lundi à 6 h (UTC), la GitHub Action **Cycle hebdomadaire du modèle** (`.github/workflows/cycle-hebdomadaire.yml`) :
+La GitHub Action **Cycle hebdomadaire du modèle** (`.github/workflows/cycle-hebdomadaire.yml`) se lance à la main : **Actions → Cycle hebdomadaire du modèle → Run workflow**. Elle :
 
 1. lance les tests ;
 2. génère le lot de la semaine, analyse son drift et réentraîne le modèle si besoin (`python -m monitoring.cycle`) ;
@@ -158,7 +158,9 @@ Chaque lundi à 6 h (UTC), la GitHub Action **Cycle hebdomadaire du modèle** (`
 
 Si la pull request n'est pas fusionnée avant le cycle suivant, elle est mise à jour avec le modèle le plus récent : il n'y a jamais plus d'une pull request de réentraînement en attente.
 
-Les rapports de chaque exécution sont affichés dans son résumé, dans l'onglet **Actions** de GitHub. Le cycle peut aussi être lancé à la main : **Actions → Cycle hebdomadaire du modèle → Run workflow**.
+Les rapports de chaque exécution sont affichés dans son résumé, dans l'onglet **Actions** de GitHub.
+
+Le lancement automatique chaque lundi à 6 h (UTC) est désactivé : pour le réactiver, décommentez le bloc `schedule` au début du fichier du workflow en retirant le premier `# ` (dièse et espace) de ses 3 lignes.
 
 ### Réglages GitHub nécessaires
 
@@ -169,7 +171,7 @@ Dans **Settings → Actions → General → Workflow permissions** :
 
 Si la branche principale est protégée, les enregistrements directs du cycle seront refusés : il faudra autoriser GitHub Actions à la modifier.
 
-GitHub désactive les Actions planifiées d'un dépôt public après 60 jours sans activité. Si cela arrive, le cycle peut être réactivé depuis l'onglet **Actions**.
+Si le lancement automatique est réactivé : GitHub désactive les Actions planifiées d'un dépôt public après 60 jours sans activité. Si cela arrive, le cycle peut être réactivé depuis l'onglet **Actions**.
 
 La GitHub Action **Tests** (`.github/workflows/tests.yml`) lance les tests à chaque pull request et à chaque modification de la branche principale.
 
