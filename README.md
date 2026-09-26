@@ -12,6 +12,7 @@ Les prix sont exprimés en **dollars américains**, la devise des données d'ori
 |---|---|
 | `data/carprice.csv` | Données brutes (noms de colonnes en anglais, unités américaines) |
 | `data/data_utilisable.csv` | Données nettoyées : colonnes en français, unités métriques, marque et modèle séparés |
+| `data/donnees_modele.csv` | Données d'entraînement du modèle en service, utilisées pour les listes de l'application |
 | `notebook/nettoyage.ipynb` | Exploration et nettoyage des données |
 | `notebook/model.ipynb` | Exploration du modèle : évaluation, courbe d'apprentissage, recherche d'hyperparamètres |
 | `pipeline/nettoyage.py` | Nettoyage des données brutes, réutilisable pour de nouvelles données |
@@ -24,9 +25,11 @@ Les prix sont exprimés en **dollars américains**, la devise des données d'ori
 | `data/nouvelles/` | Lots de données simulés |
 | `monitoring/reference.py` | Statistiques de référence du modèle en service (`monitoring/reference.json`) |
 | `monitoring/drift.py` | Détection du drift d'un lot et décision de réentraînement |
-| `monitoring/seuils.toml` | Seuils de décision |
-| `monitoring/rapports/` | Rapports de drift de chaque lot |
-| `tests/` | Tests du nettoyage, de l'entraînement, de la simulation et de la détection du drift |
+| `monitoring/reentrainement.py` | Réentraînement automatique et remplacement du modèle en service |
+| `monitoring/seuils.toml` | Seuils de décision et réglages du réentraînement |
+| `monitoring/rapports/` | Rapports de drift et de réentraînement |
+| `modeles/archives/` | Anciens modèles, avec leur référence et leurs données |
+| `tests/` | Tests du nettoyage, de l'entraînement, de la simulation, du suivi du drift et de l'application |
 
 ## Installation
 
@@ -50,9 +53,9 @@ streamlit run streamlit/app.py
 
 Sélectionnez les caractéristiques du véhicule, puis cliquez sur **Estimation** pour afficher le prix estimé.
 
-## Préparer les données et réentraîner le modèle
+## Repartir du modèle d'origine
 
-Depuis la racine du dépôt :
+Pour réentraîner le modèle sur les seules données d'origine, par exemple pour revenir au point de départ, lancez depuis la racine du dépôt :
 
 ```bash
 # nettoyage des données brutes
@@ -60,9 +63,15 @@ python -m pipeline.nettoyage data/carprice.csv data/data_utilisable.csv
 
 # entraînement du modèle, enregistré dans streamlit/model.pkl
 python -m pipeline.entrainement
+
+# données et référence du modèle en service
+cp data/data_utilisable.csv data/donnees_modele.csv
+python -m monitoring.reference
 ```
 
 L'entraînement affiche les scores du modèle (R², RMSE et MAE) sur les jeux d'entraînement et de test. Le nouveau modèle est aussitôt utilisé par l'application.
+
+Les trois dernières commandes vont ensemble : le modèle, ses données et sa référence doivent toujours correspondre.
 
 Un modèle enregistré avec pickle ne se recharge de façon fiable qu'avec la version de scikit-learn qui l'a entraîné : si vous changez cette version, mettez à jour `requirements.txt` et réentraînez le modèle.
 
@@ -115,11 +124,26 @@ Un rapport Markdown et un résultat JSON sont enregistrés dans `monitoring/rapp
 
 Réglés sur des lots simulés, ces seuils déclenchent un réentraînement dans 2 % des cas sur des lots sans drift, et dans 100 % des cas à partir du lot 4 du scénario.
 
-Après un réentraînement, la référence doit être recalculée pour le nouveau modèle :
+## Réentraînement automatique
+
+Quand l'analyse d'un lot conclut qu'il faut réentraîner le modèle :
 
 ```bash
-python -m monitoring.reference
+python -m monitoring.reentrainement
 ```
+
+1. **Données d'entraînement** : les lots les plus récents de `data/nouvelles/`, jusqu'à atteindre au moins 200 véhicules (fenêtre glissante), complétés si besoin par des véhicules des données d'origine. Avec l'inflation et l'évolution de la gamme, les données anciennes ne sont plus représentatives.
+2. **Comparaison** : un nouveau modèle est évalué par validation croisée sur ces données. Sur le dernier lot, ses prédictions sont comparées à celles du modèle en service, qui n'a jamais vu ce lot.
+3. **Mise en service**, seulement si le nouveau modèle a une erreur moyenne plus faible sur le dernier lot :
+   - l'ancien modèle, sa référence et ses données sont archivés dans `modeles/archives/<lot>/` ;
+   - le nouveau modèle est entraîné sur toutes les données de la fenêtre et remplace `streamlit/model.pkl` ;
+   - `data/donnees_modele.csv` et `monitoring/reference.json` sont mis à jour : les listes de l'application proposent les nouvelles valeurs, comme une nouvelle marque, et les prochains lots sont comparés au nouveau modèle.
+
+Un rapport est enregistré dans `monitoring/rapports/reentrainement_<lot>.md`.
+
+Pour revenir à un modèle archivé, copiez les trois fichiers de son dossier d'archive à leur place (`streamlit/`, `monitoring/`, `data/`).
+
+Sur 16 semaines simulées, le cycle a mis en service 8 nouveaux modèles et en a écarté 3 qui n'étaient pas meilleurs. Au lot 16, l'erreur moyenne du modèle en service est de 4 637 $, contre 12 232 $ pour le modèle d'origine jamais réentraîné.
 
 ## Tests
 
