@@ -1,0 +1,56 @@
+# Scénario de drift appliqué aux lots simulés.
+# Chaque effet augmente avec le numéro du lot : le lot 1 est proche des
+# données d'origine, puis les données s'en éloignent progressivement.
+#
+# Avec ces réglages, le modèle d'origine reste fiable sur les lots 1 et 2
+# (MAE ≈ 1 250 $, R² ≈ 0,93), est à la limite au lot 3, puis se dégrade
+# nettement à partir du lot 4, avec l'arrivée de la première nouvelle marque
+# (MAE ≈ 2 400 $, R² ≈ 0,80).
+
+# Nombre de véhicules par lot
+taille_lot = 60
+
+# Graine de départ : le lot n utilise la graine graine + n, ce qui permet
+# de régénérer un lot à l'identique
+graine = 2026
+
+# Bruit aléatoire appliqué aux colonnes numériques (écart-type relatif)
+# pour ne pas produire de copies exactes des véhicules d'origine
+bruit_caracteristiques = 0.01
+bruit_prix = 0.03
+
+[inflation]
+# Hausse des prix par lot (0.015 = +1,5 % par lot, cumulés)
+taux_par_lot = 0.015
+
+[puissance]
+# Hausse de la puissance des moteurs par lot (cumulée)
+taux_par_lot = 0.01
+
+[gamme]
+# Les véhicules ayant ces caractéristiques sont de plus en plus souvent
+# tirés : leur poids de tirage augmente de hausse_par_lot à chaque lot
+hausse_par_lot = 0.1
+preferences = { fueltype = "diesel", aspiration = "turbo", carbody = "sedan" }
+
+[relation_puissance_prix]
+# Changement de relation entre les caractéristiques et le prix (concept
+# drift) : à chaque lot, la puissance pèse davantage dans le prix.
+# Un véhicule plus puissant que la moyenne d'un écart-type voit son prix
+# augmenter de intensite_par_lot × numéro du lot.
+intensite_par_lot = 0.015
+
+# Marques absentes des données d'origine, qui apparaissent à partir d'un lot donné
+[[nouvelles_marques]]
+nom = "tesla"
+modeles = ["model 3", "model s", "model y"]
+a_partir_du_lot = 4
+part = 0.08          # part des véhicules du lot
+facteur_prix = 1.5   # prix par rapport au véhicule d'origine
+
+[[nouvelles_marques]]
+nom = "kia"
+modeles = ["picanto", "rio", "ceed", "sportage"]
+a_partir_du_lot = 6
+part = 0.08
+facteur_prix = 0.9
