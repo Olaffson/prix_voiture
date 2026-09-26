@@ -22,7 +22,11 @@ Les prix sont exprimés en **dollars américains**, la devise des données d'ori
 | `simulation/generer_lot.py` | Génération de lots de données simulés, pour tester le suivi du drift |
 | `simulation/scenario.toml` | Scénario de drift appliqué aux lots simulés |
 | `data/nouvelles/` | Lots de données simulés |
-| `tests/` | Tests du nettoyage, de l'entraînement et de la simulation |
+| `monitoring/reference.py` | Statistiques de référence du modèle en service (`monitoring/reference.json`) |
+| `monitoring/drift.py` | Détection du drift d'un lot et décision de réentraînement |
+| `monitoring/seuils.toml` | Seuils de décision |
+| `monitoring/rapports/` | Rapports de drift de chaque lot |
+| `tests/` | Tests du nettoyage, de l'entraînement, de la simulation et de la détection du drift |
 
 ## Installation
 
@@ -85,6 +89,37 @@ Le drift augmente avec le numéro du lot. Avec ces réglages, le modèle actuel 
 Un lot est reproductible : `python -m simulation.generer_lot --numero 3` régénère toujours le même lot 3.
 
 Ces données sont fictives : elles servent à tester la chaîne de suivi du modèle, pas à l'améliorer.
+
+## Détection du drift
+
+Chaque nouveau lot est comparé à la référence, c'est-à-dire aux données d'entraînement et à la performance du modèle en service :
+
+```bash
+python -m monitoring.drift data/nouvelles/lot_001_2026-10-05.csv
+```
+
+L'analyse porte sur trois points :
+
+- **la performance du modèle sur le lot**, grâce aux prix réels : erreur moyenne (MAE) et R² ;
+- **le drift de chaque colonne**, mesuré par le PSI (*Population Stability Index*). Un drift n'est retenu que s'il est confirmé par un test du khi-deux : sur un petit lot, le PSI varie beaucoup par simple hasard ;
+- **les valeurs inconnues du modèle**, comme une nouvelle marque, que le modèle ignore sans signaler d'erreur.
+
+| Décision | Condition (seuils de `monitoring/seuils.toml`) |
+|---|---|
+| **réentraîner** | MAE > 1,2 × la MAE de référence, ou R² < 0,80, ou colonnes en drift important représentant au moins 30 % de l'importance du modèle, ou plus de 5 % de véhicules avec une valeur inconnue |
+| **surveiller** | drift modéré d'une colonne, ou quelques valeurs inconnues |
+| **aucune action** | rien de notable |
+| **lot trop petit** | moins de 50 véhicules : les mesures seraient trop instables |
+
+Un rapport Markdown et un résultat JSON sont enregistrés dans `monitoring/rapports/`.
+
+Réglés sur des lots simulés, ces seuils déclenchent un réentraînement dans 2 % des cas sur des lots sans drift, et dans 100 % des cas à partir du lot 4 du scénario.
+
+Après un réentraînement, la référence doit être recalculée pour le nouveau modèle :
+
+```bash
+python -m monitoring.reference
+```
 
 ## Tests
 
