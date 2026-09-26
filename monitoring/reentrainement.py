@@ -176,6 +176,25 @@ def rapport_markdown(resultat: dict) -> str:
     return '\n'.join(lignes) + '\n'
 
 
+def reentrainer_et_rapporter(lots: list[Path], seuils: dict, rapports: Path = RAPPORTS_PAR_DEFAUT,
+                             **chemins) -> tuple[dict, Path]:
+    """
+    Réentraîne le modèle (voir reentrainer) et enregistre le rapport (Markdown et JSON).
+
+    Returns:
+        tuple: résultat du réentraînement et chemin du rapport Markdown.
+    """
+    resultat = reentrainer(lots, seuils, **chemins)
+
+    rapports.mkdir(parents=True, exist_ok=True)
+    rapport = rapports / f'reentrainement_{lots[-1].stem}.md'
+    rapport.write_text(rapport_markdown(resultat), encoding='utf-8')
+    with open(rapport.with_suffix('.json'), 'w', encoding='utf-8') as file:
+        json.dump(resultat, file, ensure_ascii=False, indent=2)
+        file.write('\n')
+    return resultat, rapport
+
+
 def main():
     parser = argparse.ArgumentParser(description='Réentraîne le modèle sur les lots les plus récents.')
     parser.add_argument('--lots', type=Path, default=LOTS_PAR_DEFAUT, help='dossier des lots')
@@ -186,19 +205,12 @@ def main():
     lots = lister_lots(args.lots)
     if not lots:
         parser.error(f'aucun lot dans {args.lots}')
-    resultat = reentrainer(lots, charger_seuils(args.seuils))
-
-    args.rapports.mkdir(parents=True, exist_ok=True)
-    nom = f'reentrainement_{lots[-1].stem}'
-    (args.rapports / f'{nom}.md').write_text(rapport_markdown(resultat), encoding='utf-8')
-    with open(args.rapports / f'{nom}.json', 'w', encoding='utf-8') as file:
-        json.dump(resultat, file, ensure_ascii=False, indent=2)
-        file.write('\n')
+    resultat, rapport = reentrainer_et_rapporter(lots, charger_seuils(args.seuils), args.rapports)
 
     champion, challenger = resultat['champion_dernier_lot'], resultat['challenger_dernier_lot']
     print(f"MAE sur le dernier lot : modèle en service {champion['mae']:.0f} $, nouveau modèle {challenger['mae']:.0f} $")
     print('Nouveau modèle mis en service' if resultat['remplace'] else 'Modèle en service conservé')
-    print(f'Rapport : {args.rapports / nom}.md')
+    print(f'Rapport : {rapport}')
 
 
 if __name__ == '__main__':
