@@ -1,0 +1,28 @@
+# Lance les tests à chaque pull request et à chaque modification de la branche principale.
+# (Les commits et pull requests créés par le cycle hebdomadaire ne déclenchent pas ce
+# workflow, car GitHub ne relance pas d'Action pour ce qui est créé avec GITHUB_TOKEN :
+# le cycle lance donc lui-même les tests.)
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancer les tests
+        run: pytest -q
