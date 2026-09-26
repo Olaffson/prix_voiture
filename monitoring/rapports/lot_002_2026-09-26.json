@@ -1,0 +1,155 @@
+{
+  "lot": "lot_002_2026-09-26.csv",
+  "nb_vehicules": 60,
+  "raisons": [],
+  "alertes": [],
+  "performance": {
+    "r2": 0.936091527361262,
+    "rmse": 2265.7125354879163,
+    "mae": 1343.4982499999999
+  },
+  "mae_max": 1648.0231609756097,
+  "colonnes": {
+    "risque_assurance": {
+      "psi": 0.006768200938989556,
+      "p_valeur": 0.9578035326797448,
+      "drift": null
+    },
+    "empattement": {
+      "psi": 0.03901208438855228,
+      "p_valeur": 0.7851315352820541,
+      "drift": null
+    },
+    "longueur_voiture": {
+      "psi": 0.03482129813892648,
+      "p_valeur": 0.8127267909879393,
+      "drift": null
+    },
+    "largeur_voiture": {
+      "psi": 0.046301236362849066,
+      "p_valeur": 0.7173276783134075,
+      "drift": null
+    },
+    "hauteur_voiture": {
+      "psi": 0.039796678025937324,
+      "p_valeur": 0.7599284724910635,
+      "drift": null
+    },
+    "poids_voiture": {
+      "psi": 0.14410638598569941,
+      "p_valeur": 0.18902450110756214,
+      "drift": null
+    },
+    "taille_moteur": {
+      "psi": 0.22324246373935144,
+      "p_valeur": 0.07492224801297738,
+      "drift": null
+    },
+    "taux_alesage": {
+      "psi": 0.07379423924375832,
+      "p_valeur": 0.4880658490626286,
+      "drift": null
+    },
+    "course": {
+      "psi": 0.053509767254032774,
+      "p_valeur": 0.6816534282712741,
+      "drift": null
+    },
+    "taux_compression": {
+      "psi": 0.05884236300014681,
+      "p_valeur": 0.612300225374425,
+      "drift": null
+    },
+    "puissance": {
+      "psi": 0.2145781981626591,
+      "p_valeur": 0.08550229329535845,
+      "drift": null
+    },
+    "tour_moteur": {
+      "psi": 0.1706047624067464,
+      "p_valeur": 0.0945525675288032,
+      "drift": null
+    },
+    "consommation_ville": {
+      "psi": 0.08423059761486573,
+      "p_valeur": 0.4665739891313814,
+      "drift": null
+    },
+    "consommation_autoroute": {
+      "psi": 0.0635571867694414,
+      "p_valeur": 0.5846492266537572,
+      "drift": null
+    },
+    "prix": {
+      "psi": 0.12365107064479512,
+      "p_valeur": 0.23719095558834896,
+      "drift": null
+    },
+    "carburant": {
+      "psi": 0.0024652480669070265,
+      "p_valeur": 0.9358119047275033,
+      "drift": null
+    },
+    "turbo": {
+      "psi": 0.0013322450215253049,
+      "p_valeur": 0.9566338823936753,
+      "drift": null
+    },
+    "nombre_portes": {
+      "psi": 0.012825719390018805,
+      "p_valeur": 0.5360562491989749,
+      "drift": null
+    },
+    "type_vehicule": {
+      "psi": 0.0321364940971394,
+      "p_valeur": 0.6487750326477149,
+      "drift": null
+    },
+    "roues_motrices": {
+      "psi": 0.010709505011811818,
+      "p_valeur": 0.7614219753194169,
+      "drift": null
+    },
+    "emplacement_moteur": {
+      "psi": 0.0002685324488361292,
+      "p_valeur": 1.0,
+      "drift": null
+    },
+    "type_moteur": {
+      "psi": 0.04644222807883938,
+      "p_valeur": 0.8639063839968851,
+      "drift": null
+    },
+    "nombre_cylindres": {
+      "psi": 0.014743837528885733,
+      "p_valeur": 0.8914189370387074,
+      "drift": null
+    },
+    "systeme_carburant": {
+      "psi": 0.00796157333057116,
+      "p_valeur": 0.9846891198011868,
+      "drift": null
+    },
+    "marque": {
+      "psi": 0.0967291650869342,
+      "p_valeur": 0.9172504306637163,
+      "drift": null
+    }
+  },
+  "colonnes_en_drift": [],
+  "part_importance_en_drift": 0,
+  "valeurs_inconnues": {
+    "modele": [
+      "5000s (diesel)",
+      "D-Max V-Cross",
+      "baja",
+      "century",
+      "colt hardtop",
+      "corolla 1600 (sw)",
+      "glc custom l",
+      "x4"
+    ]
+  },
+  "part_vehicules_inconnus": 0.0,
+  "decision": "aucune action"
+}
