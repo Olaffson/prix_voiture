@@ -10,3 +10,4 @@ matplotlib
 ydata_profiling
 # ydata_profiling utilise pkg_resources, supprimé de setuptools à partir de la version 81
 setuptools<81
+pytest
