@@ -26,10 +26,12 @@ Les prix sont exprimés en **dollars américains**, la devise des données d'ori
 | `monitoring/reference.py` | Statistiques de référence du modèle en service (`monitoring/reference.json`) |
 | `monitoring/drift.py` | Détection du drift d'un lot et décision de réentraînement |
 | `monitoring/reentrainement.py` | Réentraînement automatique et remplacement du modèle en service |
+| `monitoring/cycle.py` | Cycle hebdomadaire : nouveau lot, drift et réentraînement |
+| `.github/workflows/` | GitHub Actions : cycle hebdomadaire et tests |
 | `monitoring/seuils.toml` | Seuils de décision et réglages du réentraînement |
 | `monitoring/rapports/` | Rapports de drift et de réentraînement |
 | `modeles/archives/` | Anciens modèles, avec leur référence et leurs données |
-| `tests/` | Tests du nettoyage, de l'entraînement, de la simulation, du suivi du drift et de l'application |
+| `tests/` | Tests du nettoyage, de l'entraînement, de la simulation, du suivi du drift, du cycle et de l'application |
 
 ## Installation
 
@@ -144,6 +146,32 @@ Un rapport est enregistré dans `monitoring/rapports/reentrainement_<lot>.md`.
 Pour revenir à un modèle archivé, copiez les trois fichiers de son dossier d'archive à leur place (`streamlit/`, `monitoring/`, `data/`).
 
 Sur 16 semaines simulées, le cycle a mis en service 8 nouveaux modèles et en a écarté 3 qui n'étaient pas meilleurs. Au lot 16, l'erreur moyenne du modèle en service est de 4 637 $, contre 12 232 $ pour le modèle d'origine jamais réentraîné.
+
+## Cycle hebdomadaire automatique
+
+Chaque lundi à 6 h (UTC), la GitHub Action **Cycle hebdomadaire du modèle** (`.github/workflows/cycle-hebdomadaire.yml`) :
+
+1. lance les tests ;
+2. génère le lot de la semaine, analyse son drift et réentraîne le modèle si besoin (`python -m monitoring.cycle`) ;
+3. enregistre le lot et ses rapports directement sur la branche principale ;
+4. si un nouveau modèle est meilleur que le modèle en service, relance les tests avec ce modèle puis ouvre une **pull request** qui le propose, avec le rapport de réentraînement en description. Le nouveau modèle n'est mis en service qu'une fois la pull request fusionnée.
+
+Si la pull request n'est pas fusionnée avant le cycle suivant, elle est mise à jour avec le modèle le plus récent : il n'y a jamais plus d'une pull request de réentraînement en attente.
+
+Les rapports de chaque exécution sont affichés dans son résumé, dans l'onglet **Actions** de GitHub. Le cycle peut aussi être lancé à la main : **Actions → Cycle hebdomadaire du modèle → Run workflow**.
+
+### Réglages GitHub nécessaires
+
+Dans **Settings → Actions → General → Workflow permissions** :
+
+- cocher **Read and write permissions**, pour que le cycle puisse enregistrer les lots sur la branche principale ;
+- cocher **Allow GitHub Actions to create and approve pull requests**, pour qu'il puisse proposer les nouveaux modèles.
+
+Si la branche principale est protégée, les enregistrements directs du cycle seront refusés : il faudra autoriser GitHub Actions à la modifier.
+
+GitHub désactive les Actions planifiées d'un dépôt public après 60 jours sans activité. Si cela arrive, le cycle peut être réactivé depuis l'onglet **Actions**.
+
+La GitHub Action **Tests** (`.github/workflows/tests.yml`) lance les tests à chaque pull request et à chaque modification de la branche principale.
 
 ## Tests
 

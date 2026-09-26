@@ -218,6 +218,28 @@ def rapport_markdown(nom_lot: str, resultat: dict, reference: dict, seuils: dict
     return '\n'.join(lignes) + '\n'
 
 
+def analyser_fichier(lot: Path, reference: Path = REFERENCE_PAR_DEFAUT, modele: Path = MODELE_PAR_DEFAUT,
+                     seuils: Path = SEUILS_PAR_DEFAUT, rapports: Path = RAPPORTS_PAR_DEFAUT) -> tuple[dict, Path]:
+    """
+    Analyse un lot brut et enregistre son rapport (Markdown et JSON) dans le dossier des rapports.
+
+    Returns:
+        tuple: résultat de l'analyse et chemin du rapport Markdown.
+    """
+    reference, seuils = charger_reference(reference), charger_seuils(seuils)
+    with open(modele, 'rb') as file:
+        model = pickle.load(file)
+    resultat = analyser_lot(nettoyer(pd.read_csv(lot)), reference, model, seuils)
+
+    rapports.mkdir(parents=True, exist_ok=True)
+    rapport = rapports / f'{lot.stem}.md'
+    rapport.write_text(rapport_markdown(lot.stem, resultat, reference, seuils), encoding='utf-8')
+    with open(rapport.with_suffix('.json'), 'w', encoding='utf-8') as file:
+        json.dump({'lot': lot.name, **resultat}, file, ensure_ascii=False, indent=2)
+        file.write('\n')
+    return resultat, rapport
+
+
 def main():
     parser = argparse.ArgumentParser(description="Analyse le drift d'un lot de données.")
     parser.add_argument('lot', type=Path, help='lot au format de data/carprice.csv')
@@ -227,22 +249,12 @@ def main():
     parser.add_argument('--rapports', type=Path, default=RAPPORTS_PAR_DEFAUT, help='dossier des rapports')
     args = parser.parse_args()
 
-    reference, seuils = charger_reference(args.reference), charger_seuils(args.seuils)
-    with open(args.modele, 'rb') as file:
-        model = pickle.load(file)
-    resultat = analyser_lot(nettoyer(pd.read_csv(args.lot)), reference, model, seuils)
+    resultat, rapport = analyser_fichier(args.lot, args.reference, args.modele, args.seuils, args.rapports)
 
-    args.rapports.mkdir(parents=True, exist_ok=True)
-    nom = args.lot.stem
-    (args.rapports / f'{nom}.md').write_text(rapport_markdown(nom, resultat, reference, seuils), encoding='utf-8')
-    with open(args.rapports / f'{nom}.json', 'w', encoding='utf-8') as file:
-        json.dump({'lot': str(args.lot), **resultat}, file, ensure_ascii=False, indent=2)
-        file.write('\n')
-
-    print(f"{nom} : {resultat['decision']}")
+    print(f"{args.lot.stem} : {resultat['decision']}")
     for raison in resultat['raisons']:
         print(f'  - {raison}')
-    print(f'Rapport : {args.rapports / nom}.md')
+    print(f'Rapport : {rapport}')
 
 
 if __name__ == '__main__':

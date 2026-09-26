@@ -1,0 +1,84 @@
+# Cycle hebdomadaire de suivi du modèle :
+# 1. génère un nouveau lot de données simulé ;
+# 2. analyse le drift du lot par rapport au modèle en service ;
+# 3. réentraîne le modèle si l'analyse le demande.
+#
+# Le lot et ses rapports sont enregistrés directement sur la branche principale.
+# Quand un nouveau modèle est meilleur que le modèle en service, il est proposé
+# dans une pull request (branche reentrainement-automatique), à valider avant
+# sa mise en service. Si cette pull request est encore ouverte la semaine
+# suivante, elle est mise à jour avec le modèle le plus récent.
+
+name: Cycle hebdomadaire du modèle
+
+on:
+  schedule:
+    # chaque lundi à 6 h (UTC)
+    - cron: '0 6 * * 1'
+  # lancement manuel depuis l'onglet Actions de GitHub
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# deux cycles ne doivent pas tourner en même temps : ils généreraient le même numéro de lot
+concurrency:
+  group: cycle-hebdomadaire
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Tester le modèle en service
+        run: pytest -q
+
+      - name: Générer le lot, analyser le drift et réentraîner si besoin
+        id: cycle
+        run: python -m monitoring.cycle
+
+      - name: Tester le nouveau modèle
+        if: steps.cycle.outputs.remplace == 'true'
+        run: pytest -q
+
+      - name: Enregistrer le lot et ses rapports
+        env:
+          LOT: ${{ steps.cycle.outputs.lot }}
+          DECISION: ${{ steps.cycle.outputs.decision }}
+          FICHIERS: ${{ steps.cycle.outputs.fichiers_main }}
+          BRANCHE: ${{ github.ref_name }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add $FICHIERS
+          git commit -m "Ajoute le lot $LOT (décision : $DECISION)"
+          git push origin "HEAD:$BRANCHE"
+
+      - name: Proposer le nouveau modèle
+        if: steps.cycle.outputs.remplace == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: reentrainement-automatique
+          base: ${{ github.ref_name }}
+          add-paths: |
+            streamlit/model.pkl
+            monitoring/reference.json
+            data/donnees_modele.csv
+            modeles/archives
+            monitoring/rapports/reentrainement_*
+          commit-message: Met en service le modèle réentraîné au ${{ steps.cycle.outputs.lot }}
+          title: Nouveau modèle réentraîné au ${{ steps.cycle.outputs.lot }}
+          body-path: ${{ steps.cycle.outputs.rapport_reentrainement }}
+          reviewers: ${{ github.repository_owner }}
+          delete-branch: true
