@@ -39,3 +39,12 @@ part_max = 0.05
 # n'apparaissent qu'une ou deux fois dans les données, un modèle inconnu est
 # donc fréquent et ne signale pas à lui seul un drift
 colonnes_ignorees = ["modele"]
+
+[reentrainement]
+# Le nouveau modèle est entraîné sur les lots les plus récents (fenêtre
+# glissante), complétés par des véhicules des données d'origine pour
+# atteindre au moins ce nombre de véhicules
+nb_vehicules_min = 200
+# Nombre de plis de la validation croisée qui mesure la performance du
+# nouveau modèle
+nb_plis = 5
