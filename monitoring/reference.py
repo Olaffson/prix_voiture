@@ -98,21 +98,27 @@ def valeurs_connues(model: Pipeline) -> dict:
     return resultat
 
 
-def construire_reference(df: pd.DataFrame, model: Pipeline) -> dict:
+def construire_reference(df: pd.DataFrame, model: Pipeline, performance: dict | None = None,
+                         donnees: list | None = None) -> dict:
     """
     Construit la référence à partir des données d'entraînement du modèle.
 
     Args:
         df (pd.DataFrame): données nettoyées sur lesquelles le modèle a été entraîné et évalué.
         model (Pipeline): modèle en service.
+        performance (dict): performance du modèle hors données d'entraînement (MAE, RMSE, R²). Par défaut,
+            elle est mesurée sur le jeu de test de pipeline.entrainement.
+        donnees (list): origine des données d'entraînement (fichiers), pour mémoire.
 
     Returns:
         dict: référence, enregistrable en JSON.
     """
-    X = df.drop(CIBLE, axis=1)
-    y = df[CIBLE]
-    # même découpage que pipeline.entrainement : la performance de référence est celle du jeu de test
-    _, X_test, _, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE)
+    if performance is None:
+        X = df.drop(CIBLE, axis=1)
+        y = df[CIBLE]
+        # même découpage que pipeline.entrainement : la performance de référence est celle du jeu de test
+        _, X_test, _, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE)
+        performance = evaluer(model, X_test, y_test)
 
     colonnes_numeriques = df.select_dtypes(include=np.number).columns
     colonnes_texte = df.columns.difference(colonnes_numeriques, sort=False)
@@ -122,7 +128,8 @@ def construire_reference(df: pd.DataFrame, model: Pipeline) -> dict:
         'date': datetime.date.today().isoformat(),
         'version_scikit_learn': sklearn.__version__,
         'nb_vehicules': len(df),
-        'performance': evaluer(model, X_test, y_test),
+        'donnees': donnees or ['data/carprice.csv'],
+        'performance': performance,
         'importances': importances_par_colonne(model),
         'valeurs_connues': valeurs_connues(model),
         'numeriques': {colonne: repartition_numerique(df[colonne]) for colonne in colonnes_numeriques},

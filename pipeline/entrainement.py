@@ -45,7 +45,11 @@ def creer_modele() -> Pipeline:
 
 def evaluer(model: Pipeline, X: pd.DataFrame, y: pd.Series) -> dict:
     """Calcule le R², le RMSE et le MAE du modèle sur les données fournies."""
-    y_pred = model.predict(X)
+    return mesurer(y, model.predict(X))
+
+
+def mesurer(y, y_pred) -> dict:
+    """Calcule le R², le RMSE et le MAE de prédictions déjà faites."""
     return {
         'r2': r2_score(y, y_pred),
         'rmse': sqrt(mean_squared_error(y, y_pred)),

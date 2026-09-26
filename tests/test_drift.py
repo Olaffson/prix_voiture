@@ -9,8 +9,8 @@ import pytest
 
 from monitoring.drift import (AUCUNE, LOT_TROP_PETIT, REENTRAINER, analyser_lot, charger_seuils, p_valeur, psi,
                               rapport_markdown)
-from monitoring.reference import charger_reference, construire_reference
-from pipeline.entrainement import MODELE_PAR_DEFAUT
+from monitoring.reference import charger_reference, construire_reference, sauvegarder_reference
+from pipeline.entrainement import MODELE_PAR_DEFAUT, entrainer, sauvegarder
 from pipeline.nettoyage import nettoyer
 
 RACINE = Path(__file__).parent.parent
@@ -18,14 +18,14 @@ DATA = RACINE / 'data'
 
 
 @pytest.fixture(scope='module')
-def model():
-    with open(MODELE_PAR_DEFAUT, 'rb') as file:
-        return pickle.load(file)
+def donnees():
+    return pd.read_csv(DATA / 'data_utilisable.csv')
 
 
 @pytest.fixture(scope='module')
-def donnees():
-    return pd.read_csv(DATA / 'data_utilisable.csv')
+def model(donnees):
+    """Modèle d'origine : les tests ne dépendent pas du modèle en service, qui change à chaque réentraînement."""
+    return entrainer(donnees)[0]
 
 
 @pytest.fixture(scope='module')
@@ -65,12 +65,18 @@ def test_reference(reference):
     assert 'modele' not in reference['texte']
 
 
-def test_reference_enregistree_a_jour(reference):
-    """monitoring/reference.json doit correspondre au modèle en service."""
+def test_reference_enregistree_a_jour():
+    """monitoring/reference.json doit correspondre au modèle en service et à ses données."""
     enregistree = charger_reference()
+    with open(MODELE_PAR_DEFAUT, 'rb') as file:
+        en_service = pickle.load(file)
+    donnees_modele = pd.read_csv(DATA / 'donnees_modele.csv')
+    # la performance d'un modèle réentraîné vient d'une validation croisée : elle est reprise telle quelle
+    reference = construire_reference(donnees_modele, en_service, enregistree['performance'], enregistree['donnees'])
+
     # aller-retour en JSON pour comparer les mêmes types (listes, flottants)
     reference = json.loads(json.dumps(reference))
-    for cle in ['performance', 'importances', 'valeurs_connues', 'numeriques', 'texte']:
+    for cle in ['nb_vehicules', 'importances', 'valeurs_connues', 'numeriques', 'texte']:
         assert enregistree[cle] == reference[cle]
 
 
@@ -134,11 +140,14 @@ def test_rapport(lot, reference, model, seuils):
     assert '| taille_moteur |' in rapport
 
 
-def test_ligne_de_commande(tmp_path):
+def test_ligne_de_commande(tmp_path, model, reference):
     fichier = tmp_path / 'lot_001_2026-10-05.csv'
     pd.read_csv(DATA / 'carprice.csv').sample(n=80, random_state=1).to_csv(fichier, index=False)
+    sauvegarder(model, tmp_path / 'model.pkl')
+    sauvegarder_reference(reference, tmp_path / 'reference.json')
 
-    subprocess.run([sys.executable, '-m', 'monitoring.drift', str(fichier), '--rapports', str(tmp_path / 'rapports')],
+    subprocess.run([sys.executable, '-m', 'monitoring.drift', str(fichier), '--rapports', str(tmp_path / 'rapports'),
+                    '--modele', str(tmp_path / 'model.pkl'), '--reference', str(tmp_path / 'reference.json')],
                    cwd=RACINE, check=True, capture_output=True)
 
     resultat = json.loads((tmp_path / 'rapports' / 'lot_001_2026-10-05.json').read_text(encoding='utf-8'))

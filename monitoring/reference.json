@@ -2,6 +2,9 @@
   "date": "2026-09-26",
   "version_scikit_learn": "1.9.1",
   "nb_vehicules": 205,
+  "donnees": [
+    "data/carprice.csv"
+  ],
   "performance": {
     "r2": 0.953381576280235,
     "rmse": 1918.3966783514438,

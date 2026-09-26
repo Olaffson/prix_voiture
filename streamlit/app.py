@@ -14,8 +14,9 @@ def main():
 
     st.title("Estimation du prix du véhicule")
     
-    # chemin relatif au fichier pour pouvoir lancer l'application depuis n'importe quel dossier
-    df = pd.read_csv(Path(__file__).parent.parent / 'data' / 'data_utilisable.csv')
+    # données d'entraînement du modèle en service : elles changent quand le modèle est réentraîné
+    # (chemin relatif au fichier pour pouvoir lancer l'application depuis n'importe quel dossier)
+    df = pd.read_csv(Path(__file__).parent.parent / 'data' / 'donnees_modele.csv')
 
     # Organiser les box de selections dans des colonnes
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
